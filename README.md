@@ -36,3 +36,12 @@ And get someone to do my ELA assignment for me.
 ---
 
 Woo! You made it through the dramatic expository bit! Here, I'll let you in on a secret for reading this far: I have absolutely no clue how to use Go. There will be much more AI assistance than I'd usually admit to in this project. But hey, at least I understand the code. I don't think the OpenClaw guys even know there *is* code.
+
+## security
+
+wait, what's "security"?
+
+> [!CAUTION]
+> jokes aside, giving an LLM access to API keys, dangerous tools, and other sensitive information, and then letting it run free on the interwebs is not a good idea. **assume that the LLM ***will*** either do something stupid, or someone else will make your LLM do something stupid.** i've tried my best to build in good-ish security practices, but I'm just a middle schooler with a free-tier Claude account and less-than-average amounts of homework. please be *extremely* careful when using Bramble (as well as OpenClaw and variants!!!), and don't give your agent access to anything that would cook you if publicly released. and maybe don't let random people talk to your agent. and maybe don't hyper-publicize your agent's identity.
+>
+> one more thing: while I've tried my best to make setup and operations as simple and straightforward as possible, bramble is a technical project. **if you are not well-versed with computing, sysadmin, and the CLI, please avoid giving Bramble access to possibly-dangerous tools, and DO NOT paste commands or prompts from untrusted or sketchy sources.**
