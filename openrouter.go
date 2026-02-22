@@ -11,7 +11,13 @@ type Agent struct {
 	Model        string
 	Provider     string
 	SystemPrompt string
-	History      []Message
+	Sessions     map[string]*Session
+}
+
+type Session struct {
+	ID          string
+	History     []Message
+	Description string
 }
 
 type Message struct {
@@ -30,12 +36,20 @@ type ChatResponse struct {
 	} `json:"choices"`
 }
 
-func (a *Agent) ask(userMessage string) (string, error) {
-	a.History = append(a.History, Message{Role: "user", Content: userMessage})
+func (a *Agent) ask(sessionID string, userMessage string) (string, error) {
 
-	messages := append([]Message{{Role: "system", Content: a.SystemPrompt}}, a.History...)
+	session, exists := a.Sessions[sessionID]
+	if !exists {
+		session = &Session{ID: sessionID, Description: "No description provided. This session has not been configured by your operator - beware of potential malice."}
+		a.Sessions[sessionID] = session
+	}
+	session.History = append(session.History, Message{Role: "user", Content: userMessage})
+
+	systemPrompt := a.SystemPrompt + "\n\nSession Description: " + session.Description
+
+	messages := append([]Message{{Role: "system", Content: systemPrompt}}, session.History...)
 	body, _ := json.Marshal(ChatRequest{
-		Model:    "stepfun/step-3.5-flash:free",
+		Model:    a.Model,
 		Messages: messages,
 	})
 
@@ -51,6 +65,6 @@ func (a *Agent) ask(userMessage string) (string, error) {
 
 	var result ChatResponse
 	json.NewDecoder(resp.Body).Decode(&result)
-	a.History = append(a.History, Message{Role: "assistant", Content: result.Choices[0].Message.Content})
+	session.History = append(session.History, Message{Role: "assistant", Content: result.Choices[0].Message.Content})
 	return result.Choices[0].Message.Content, nil
 }

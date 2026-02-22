@@ -3,16 +3,20 @@ package config
 import "github.com/BurntSushi/toml"
 
 type Config struct {
-    Agent AgentConfig `toml:"agent"`
+	Agent AgentConfig `toml:"agent"`
 }
 
 type AgentConfig struct {
-    Model        string   `toml:"model"`
-    ContextFiles []string `toml:"context_files"`
+	Name                string            `toml:"name"`
+	Model               string            `toml:"model"`
+	Provider            string            `toml:"provider"`
+	SystemPrompt        string            `toml:"system_prompt"`
+	SessionDescriptions map[string]string `toml:"session_descriptions"`
+	ContextFiles        []string          `toml:"context_files"`
 }
 
 func Load(path string) (Config, error) {
-    var cfg Config
-    _, err := toml.DecodeFile(path, &cfg)
-    return cfg, err
+	var cfg Config
+	_, err := toml.DecodeFile(path, &cfg)
+	return cfg, err
 }
