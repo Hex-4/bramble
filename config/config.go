@@ -3,7 +3,8 @@ package config
 import "github.com/BurntSushi/toml"
 
 type Config struct {
-	Agent AgentConfig `toml:"agent"`
+	BrambleDir string
+	Agent      AgentConfig `toml:"agent"`
 }
 
 type AgentConfig struct {

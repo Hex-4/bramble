@@ -8,6 +8,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/Hex-4/bramble/ai"
 	"github.com/Hex-4/bramble/config"
 
 	"github.com/bwmarrin/discordgo"
@@ -24,6 +25,8 @@ func runServer() {
 	defaultHome := filepath.Join(userHome, ".bramble")
 	configFile, err := config.Load(filepath.Join(defaultHome, "config.toml"))
 
+	configFile.BrambleDir = defaultHome
+
 	if err != nil {
 		fmt.Println("error loading config:", err)
 		os.Exit(1)
@@ -36,18 +39,17 @@ func runServer() {
 		os.Exit(1)
 	}
 
-	agent := &Agent{
-		Model:        configFile.Agent.Model,
-		Provider:     configFile.Agent.Provider,
-		SystemPrompt: configFile.Agent.SystemPrompt,
-		Sessions:     make(map[string]*Session),
+	agent := &ai.Agent{
+		ActiveModel: configFile.Agent.Model,
+		Config:      &configFile,
+		Sessions:    make(map[string]*ai.Session),
 	}
 
 	for sessionID, sessionDescription := range configFile.Agent.SessionDescriptions {
-		session := &Session{
+		session := &ai.Session{
 			ID:          sessionID,
 			Description: sessionDescription,
-			History:     make([]Message, 0),
+			History:     make([]ai.Message, 0),
 		}
 		agent.Sessions[session.ID] = session
 	}
@@ -92,9 +94,7 @@ func runServer() {
 			}
 		}()
 
-		// "log" the session id
-		fmt.Println("Session ID:", "discord:"+m.ChannelID)
-		aiResponse, err := agent.ask("discord:"+m.ChannelID, messageText)
+		aiResponse, err := agent.Ask("discord:"+m.ChannelID, messageText)
 
 		if err != nil {
 			s.ChannelMessageSend(m.ChannelID, "something broke. slopster is sorry. here's the error: "+err.Error())
