@@ -23,30 +23,30 @@
   - [ ] write default `memory.md` (empty template with headers for facts/preferences)
   - [ ] write default `pending.md` (empty template for ongoing threads/tasks)
   - [ ] only seed if files don't already exist (don't clobber)
-- [ ] inject workspace files as context (configurable via `context_files`)
-  - [ ] read each file listed in `config.Agent.ContextFiles` on every message
-  - [ ] prepend file contents to system prompt (or as separate system messages)
-  - [ ] handle missing files gracefully (warn in logs, don't crash)
+- [x] inject workspace files as context (configurable via `context_files`)
+  - [x] read each file listed in `config.Agent.ContextFiles` on every message
+  - [x] prepend file contents to system prompt (or as separate system messages)
+  - [x] handle missing files gracefully (warn in logs, don't crash)
 
 ## phase 3: tool calling loop
-- [ ] define tool schema format (match openrouter/openai function calling spec)
-  - [ ] add `tools` field to `ChatRequest` struct (array of tool definitions)
-  - [ ] add `tool_calls` field to response `Message` struct
-  - [ ] define a `Tool` interface or struct: name, description, parameters schema, execute func
-- [ ] agent loop: model responds → check for tool calls → execute → feed results back → loop until final text response
-  - [ ] detect `tool_calls` in response (vs plain text content)
-  - [ ] look up tool by name, validate params
-  - [ ] execute tool, capture result as string
-  - [ ] append tool result as a `role: "tool"` message with `tool_call_id`
-  - [ ] re-call the model with updated messages
-  - [ ] loop until response has no tool calls (just text)
-  - [ ] add a max-iterations safeguard (prevent infinite loops)
-- [ ] stream progress updates to discord as tools run
-  - [ ] send/edit a discord message with current tool name + status
-  - [ ] update the message as each tool completes
-- [ ] `read_file` and `write_file` as first tools
-  - [ ] `read_file`: takes `path` param, reads from `~/.bramble/workspace/<path>`, returns contents
-  - [ ] `write_file`: takes `path` + `content`, writes to workspace, returns confirmation
+- [x] define tool schema format (match openrouter/openai function calling spec)
+  - [x] add `tools` field to `ChatRequest` struct (array of tool definitions)
+  - [x] add `tool_calls` field to response `Message` struct
+  - [x] define a `Tool` interface or struct: name, description, parameters schema, execute func
+- [x] agent loop: model responds → check for tool calls → execute → feed results back → loop until final text response
+  - [x] detect `tool_calls` in response (vs plain text content)
+  - [x] look up tool by name, validate params
+  - [x] execute tool, capture result as string
+  - [x] append tool result as a `role: "tool"` message with `tool_call_id`
+  - [x] re-call the model with updated messages
+  - [x] loop until response has no tool calls (just text)
+  - [x] add a max-iterations safeguard (prevent infinite loops)
+- [x] stream progress updates to discord as tools run
+  - [x] send/edit a discord message with current tool name + status
+  - [x] update the message as each tool completes
+- [x] `read_file` and `write_file` as first tools
+  - [x] `read_file`: takes `path` param, reads from `~/.bramble/workspace/<path>`, returns contents
+  - [x] `write_file`: takes `path` + `content`, writes to workspace, returns confirmation
   - [ ] path validation: block `..` traversal, enforce workspace scope
 
 ## phase 4: more tools

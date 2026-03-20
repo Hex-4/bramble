@@ -6,12 +6,11 @@ import (
 	"os/signal"
 	"path/filepath"
 	"syscall"
-	"time"
 
 	"github.com/Hex-4/bramble/ai"
 	"github.com/Hex-4/bramble/config"
+	"github.com/Hex-4/bramble/tools"
 
-	"github.com/bwmarrin/discordgo"
 	"github.com/joho/godotenv"
 )
 
@@ -43,7 +42,10 @@ func runServer() {
 		ActiveModel: configFile.Agent.Model,
 		Config:      &configFile,
 		Sessions:    make(map[string]*ai.Session),
+		Tools:       tools.NewRegistry(filepath.Join(defaultHome, "workspace")),
 	}
+
+	agent.ToolSchemas = tools.NewSchemaList(agent.Tools)
 
 	for sessionID, sessionDescription := range configFile.Agent.SessionDescriptions {
 		session := &ai.Session{
@@ -54,58 +56,13 @@ func runServer() {
 		agent.Sessions[session.ID] = session
 	}
 
-	dg, err := discordgo.New("Bot " + token)
+	discordBot, err := NewDiscordBot(token, agent)
 	if err != nil {
-		fmt.Println("error creating session:", err)
+		fmt.Println("error creating discord bot:", err)
 		os.Exit(1)
 	}
 
-	dg.AddHandler(func(s *discordgo.Session, m *discordgo.MessageCreate) {
-		if m.Author.ID == s.State.User.ID {
-			return
-		}
-
-		isDM := m.GuildID == ""
-
-		if !isDM {
-			mentioned := false
-			for _, user := range m.Mentions {
-				if user.ID == s.State.User.ID {
-					mentioned = true
-					break
-				}
-			}
-			if !mentioned {
-				return
-			}
-		}
-		messageText := m.Message.Content
-		done := make(chan bool)
-
-		go func() {
-			for {
-				select {
-				case <-done:
-					return
-				default:
-					s.ChannelTyping(m.ChannelID)
-					time.Sleep(10 * time.Second)
-				}
-			}
-		}()
-
-		aiResponse, err := agent.Ask("discord:"+m.ChannelID, messageText)
-
-		if err != nil {
-			s.ChannelMessageSend(m.ChannelID, "something broke. slopster is sorry. here's the error: "+err.Error())
-			return
-		}
-		s.ChannelMessageSend(m.ChannelID, aiResponse)
-		done <- true
-	})
-	dg.Identify.Intents = discordgo.IntentsAll
-
-	err = dg.Open()
+	err = discordBot.Open()
 	if err != nil {
 		fmt.Println("error opening connection:", err)
 		os.Exit(1)
@@ -115,5 +72,5 @@ func runServer() {
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM)
 	<-sc
-	dg.Close()
+	discordBot.Close()
 }

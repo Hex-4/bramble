@@ -14,6 +14,7 @@ type AgentConfig struct {
 	SystemPrompt        string            `toml:"system_prompt"`
 	SessionDescriptions map[string]string `toml:"session_descriptions"`
 	ContextFiles        []string          `toml:"context_files"`
+	MaxToolCalls        int               `toml:"max_tool_calls"`
 }
 
 func Load(path string) (Config, error) {

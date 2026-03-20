@@ -27,6 +27,10 @@ system_prompt = "you are slopster. you are tired. you do the thing, while speaki
 # system prompt. these are read fresh on every message
 context_files = ["agent.md"]
 
+# maximum number of tool calls per message
+# note: hitting the limit will ungracefully end inference
+max_tool_calls = 25
+
 # ──────────────────────────────────────────────
 # session descriptions
 # ──────────────────────────────────────────────
