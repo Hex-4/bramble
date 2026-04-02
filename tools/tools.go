@@ -24,10 +24,12 @@ func ArgString(args map[string]any, key string) string {
 
 func NewRegistry(workspaceDir string, composioToolSlice []Tool) map[string]Tool {
 	tools := map[string]Tool{
-		"read_file":  newReadFile(workspaceDir),
-		"write_file": newWriteFile(workspaceDir),
-		"shell":      newShell(workspaceDir),
-		"web_search": newWebSearch(workspaceDir),
+		"read_file":      newReadFile(workspaceDir),
+		"write_file":     newWriteFile(workspaceDir),
+		"shell":          newShell(workspaceDir),
+		"web_search":     newWebSearch(workspaceDir),
+		"web_fetch":      newWebFetch(workspaceDir),
+		"web_highlights": newWebHighlights(workspaceDir),
 	}
 	for _, t := range composioToolSlice {
 		tools[t.Name] = t
