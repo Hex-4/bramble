@@ -14,8 +14,8 @@ func newReadFile(workspaceDir string) Tool {
 			"path": {Type: "string", Description: "file path relative to workspace", Required: true},
 		},
 		DetailParam: "path",
-		Execute: func(args map[string]string) (string, error) {
-			data, err := os.ReadFile(filepath.Join(workspaceDir, args["path"]))
+		Execute: func(args map[string]any) (string, error) {
+			data, err := os.ReadFile(filepath.Join(workspaceDir, ArgString(args, "path")))
 			return string(data), err
 		},
 	}
@@ -31,8 +31,8 @@ func newWriteFile(workspaceDir string) Tool {
 			"content": {Type: "string", Description: "file content", Required: true},
 		},
 		DetailParam: "path",
-		Execute: func(args map[string]string) (string, error) {
-			return "", os.WriteFile(filepath.Join(workspaceDir, args["path"]), []byte(args["content"]), 0644)
+		Execute: func(args map[string]any) (string, error) {
+			return "", os.WriteFile(filepath.Join(workspaceDir, ArgString(args, "path")), []byte(ArgString(args, "content")), 0644)
 		},
 	}
 }

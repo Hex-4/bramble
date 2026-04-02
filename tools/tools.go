@@ -5,8 +5,9 @@ type Tool struct {
 	Description string
 	Emoji       string
 	Parameters  map[string]Parameter // for the JSON schema sent to the model
+	RawSchema   map[string]any       // (for complex schemas)
 	DetailParam string
-	Execute     func(args map[string]string) (string, error)
+	Execute     func(args map[string]any) (string, error)
 }
 
 type Parameter struct {
@@ -15,11 +16,23 @@ type Parameter struct {
 	Required    bool
 }
 
-func NewRegistry(workspaceDir string) map[string]Tool {
-	return map[string]Tool{
+// ArgString pulls a string value out of the args map.
+func ArgString(args map[string]any, key string) string {
+	v, _ := args[key].(string)
+	return v
+}
+
+func NewRegistry(workspaceDir string, composioToolSlice []Tool) map[string]Tool {
+	tools := map[string]Tool{
 		"read_file":  newReadFile(workspaceDir),
 		"write_file": newWriteFile(workspaceDir),
+		"shell":      newShell(workspaceDir),
+		"web_search": newWebSearch(workspaceDir),
 	}
+	for _, t := range composioToolSlice {
+		tools[t.Name] = t
+	}
+	return tools
 }
 
 func NewSchemaList(tools map[string]Tool) []map[string]any {
@@ -31,6 +44,9 @@ func NewSchemaList(tools map[string]Tool) []map[string]any {
 }
 
 func (t *Tool) ToSchema() map[string]any {
+	if t.RawSchema != nil {
+		return t.RawSchema
+	}
 
 	properties := make(map[string]any)
 	for name, param := range t.Parameters {

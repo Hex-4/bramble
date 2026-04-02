@@ -1,6 +1,7 @@
 package main
 
 import (
+	"strconv"
 	"strings"
 	"time"
 
@@ -81,7 +82,7 @@ func (d *DiscordBot) handleMessage(s *discordgo.Session, m *discordgo.MessageCre
 	}
 	footer := statusHandler.Footer()
 	if footer != "" {
-		s.ChannelMessageSend(m.ChannelID, aiResponse+"\n -# "+footer)
+		s.ChannelMessageSend(m.ChannelID, aiResponse+"\n-# "+footer)
 	} else {
 		s.ChannelMessageSend(m.ChannelID, aiResponse)
 	}
@@ -94,7 +95,7 @@ func (d *DiscordBot) newStatusHandler(channelID string) *ai.StatusHandler {
 
 	return &ai.StatusHandler{
 		OnToolStart: func(emoji string, detail string) {
-			line := strings.Join(completedEmojis, "") + " ⟡ " + emoji + " " + detail
+			line := "-# " + strings.Join(completedEmojis, "") + " ⟡ " + emoji + " " + detail
 
 			if statusMsgID == "" {
 				msg, _ := d.dg.ChannelMessageSend(channelID, line)
@@ -114,7 +115,7 @@ func (d *DiscordBot) newStatusHandler(channelID string) *ai.StatusHandler {
 			if completedEmojis == nil {
 				return ""
 			}
-			return strings.Join(completedEmojis, "") + " " + string(len(completedEmojis)) + " tools"
+			return strings.Join(completedEmojis, "") + " " + strconv.Itoa(len(completedEmojis)) + " tools"
 		},
 	}
 }

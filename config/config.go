@@ -4,7 +4,8 @@ import "github.com/BurntSushi/toml"
 
 type Config struct {
 	BrambleDir string
-	Agent      AgentConfig `toml:"agent"`
+	Agent      AgentConfig   `toml:"agent"`
+	Discord    DiscordConfig `toml:"discord"`
 }
 
 type AgentConfig struct {
@@ -15,6 +16,10 @@ type AgentConfig struct {
 	SessionDescriptions map[string]string `toml:"session_descriptions"`
 	ContextFiles        []string          `toml:"context_files"`
 	MaxToolCalls        int               `toml:"max_tool_calls"`
+}
+
+type DiscordConfig struct {
+	ToolsFooter bool `toml:"tools_footer"`
 }
 
 func Load(path string) (Config, error) {

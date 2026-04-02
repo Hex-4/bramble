@@ -13,6 +13,8 @@ Yet it also has a ton of downsides. People stop thinking, instead relying on bla
 
 I don't know. AI is cool, I guess. I think the best analogy I can find for generative AI is Temu; yes, it's so cheap, so easy, and you're able to find exactly what you need. Yes, it makes building things so much faster, more affordable, and simpler. But peel back the curtain and you'll stumble upon layers upon layers of ethics concerns, environmental problems, and terrifying truths. And your package is gonna take a long time to arrive, and it might work for a little bit, and then it'll either break, or end up killing you.
 
+*To be clear: I'm talking about LLMs specifically here, not image or audio generation. I hate that stuff.*
+
 ---
 
 So, well, while the AI bubble is still inflating, I might as well give it a spin. It would be funny - and useful - to have "Claude with tools and cron" in my discord sidebar. And I can burn some of that investor money by using the free models. Maybe I can hook it up to Google Classroom to do my ELA assignment. So, on my Latitude E6400 that I've been using to run a Mattermost and Gitea instance, I run the suspiciously simple setup script. I wait for Homebrew to install. Then pnpm. Then all the dependencies. I arrow-key through the menus. Paste my Groq key. Paste my Discord bot key. And then I start using OpenClaw. 

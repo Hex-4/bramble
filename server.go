@@ -31,10 +31,28 @@ func runServer() {
 		os.Exit(1)
 	}
 
-	godotenv.Load()
+	godotenv.Load(filepath.Join(defaultHome, ".env"))
 	token := os.Getenv("DISCORD_TOKEN")
 	if token == "" {
 		fmt.Println("DISCORD_TOKEN not set")
+		os.Exit(1)
+	}
+
+	/// set up composio ///
+	composioSessionID, err := tools.CreateComposioSession()
+	if err != nil {
+		fmt.Println("error creating composio session:", err)
+		os.Exit(1)
+	}
+	composioToolSchemas, err := tools.FetchComposioSchemas(composioSessionID)
+	if err != nil {
+		fmt.Println("error fetching composio schemas:", err)
+		os.Exit(1)
+	}
+
+	composioToolsSlice, err := tools.NewComposioToolSlice(composioSessionID, composioToolSchemas)
+	if err != nil {
+		fmt.Println("error creating composio tool slice:", err)
 		os.Exit(1)
 	}
 
@@ -42,7 +60,7 @@ func runServer() {
 		ActiveModel: configFile.Agent.Model,
 		Config:      &configFile,
 		Sessions:    make(map[string]*ai.Session),
-		Tools:       tools.NewRegistry(filepath.Join(defaultHome, "workspace")),
+		Tools:       tools.NewRegistry(filepath.Join(defaultHome, "workspace"), composioToolsSlice),
 	}
 
 	agent.ToolSchemas = tools.NewSchemaList(agent.Tools)

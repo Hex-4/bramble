@@ -99,7 +99,7 @@ func (a *Agent) Ask(sessionID string, userMessage string, statusHandler *StatusH
 	session.History = append(session.History, Message{Role: "user", Content: userMessage})
 
 	systemPrompt := a.assembleSystemPrompt()
-	systemPrompt += "\n\nSession Description: " + session.Description
+	systemPrompt += "\n\nCurrent session ID: " + sessionID + "\nSession Description: " + session.Description
 
 	//// tools ////
 
@@ -133,7 +133,7 @@ func (a *Agent) Ask(sessionID string, userMessage string, statusHandler *StatusH
 					continue
 				}
 
-				var args map[string]string
+				var args map[string]any
 				err := json.Unmarshal([]byte(tc.Function.Arguments), &args)
 				if err != nil {
 					errorMessage := Message{Role: "tool", Content: "Error parsing arguments: " + err.Error(), ToolCallID: tc.ID}
@@ -142,7 +142,8 @@ func (a *Agent) Ask(sessionID string, userMessage string, statusHandler *StatusH
 				}
 
 				if statusHandler != nil {
-					statusHandler.OnToolStart(tool.Emoji, args[tool.DetailParam])
+					detail, _ := args[tool.DetailParam].(string)
+					statusHandler.OnToolStart(tool.Emoji, detail)
 				}
 
 				result, err := tool.Execute(args)
