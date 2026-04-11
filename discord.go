@@ -37,6 +37,10 @@ func (d *DiscordBot) Close() error {
 	return d.dg.Close()
 }
 
+func (d *DiscordBot) Send(channelID string, message string) {
+	d.dg.ChannelMessageSend(channelID, message)
+}
+
 func (d *DiscordBot) handleMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == s.State.User.ID {
 		return

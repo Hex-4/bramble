@@ -50,14 +50,14 @@
   - [ ] path validation: block `..` traversal, enforce workspace scope
 
 ## phase 4: more tools
-- [ ] `shell` tool (sandboxed, block dangerous commands)
-  - [ ] execute command via `os/exec`, capture stdout+stderr
-  - [ ] blocklist of dangerous commands/patterns (`rm -rf`, `sudo`, `curl | sh`, etc.)
-  - [ ] timeout per command (e.g. 30s)
-  - [ ] working directory locked to workspace
-- [ ] `web_search` tool
-  - [ ] pick a search API (SearXNG, Brave Search, Google Custom Search)
-  - [ ] return top N results as title + snippet + URL
+- [x] `shell` tool (sandboxed, block dangerous commands)
+  - [x] execute command via `os/exec`, capture stdout+stderr
+  - [x] blocklist of dangerous commands/patterns (`rm -rf`, `sudo`, `curl | sh`, etc.)
+  - [x] timeout per command (e.g. 30s)
+  - [x] working directory locked to workspace
+- [x] `web_search` tool
+  - [x] pick a search API (SearXNG, Brave Search, Google Custom Search)
+  - [x] return top N results as title + snippet + URL
 - [ ] `ssh` tool
   - [ ] connect to a host defined in config (don't let the agent pick arbitrary hosts)
   - [ ] run a command, return stdout+stderr
