@@ -1,5 +1,9 @@
 # bop 🥀
 *the hackable AI agent framework for people who'd rather make human slop*
+lives in your discord, with cron, terminal, and file tools, plus composio support for connecting to like 500 apps. plus the default personality is pretty funny lol
+
+![image](https://cdn.hackclub.com/019fbb3b-c6bf-7ecc-a629-66a83f675055/image.png)
+![image](https://cdn.hackclub.com/019fbb40-de8a-7150-8232-b0695e645d2a/image.png)
 
 I've been hearing a lot about OpenClaw lately. OpenClaw can read your email, OpenClaw can control your smart home, OpenClaw earned me $67 trillion on Polymarket, get in on the $OPENCLAW crypto drop before it's too late, OpenClaw is AGI, OpenClaw is 1000 security vulnerabilities wrapped up into one neat npm package, etc, etc, etc. All the Twitter tech bros seemed to be JUMPING on this little weekend project made by some random dude in, of course, San Francisco. It's open source. Actively developed. And who knows, I think there are some free inference providers out there. Maybe it could finish my ELA assignment for me. Wait, I still need to do my ELA assignment.
 
@@ -37,7 +41,7 @@ And get someone to do my ELA assignment for me.
 ---
 ---
 
-Woo! You made it through the dramatic expository bit! Here, I'll let you in on a secret for reading this far: I have absolutely no clue how to use Go. There will be much more AI assistance than I'd usually admit to in this project. But hey, at least I understand the code. I don't think the OpenClaw guys even know there *is* code.
+Woo! You made it through the dramatic expository bit! Here, I'll let you in on a secret for reading this far: I have absolutely no clue how to use Go. There will be much more AI assistance than I'd usually admit to in this project. But hey, at least I understand the code. I don't think the OpenClaw guys even know there *is* code. I used coding agents here as a sort of teacher - asking them to explain Go concepts to me, as well as a faster alternative to Google for how to do things, and advice on architectural decisions. They also helped with some mechanical, tedious work, like renaming the project (twice).
 
 ## security
 
@@ -47,3 +51,33 @@ wait, what's "security"?
 > jokes aside, giving an LLM access to API keys, dangerous tools, and other sensitive information, and then letting it run free on the interwebs is not a good idea. **assume that the LLM ***will*** either do something stupid, or someone else will make your LLM do something stupid.** i've tried my best to build in good-ish security practices, but I'm just a middle schooler with a free-tier Claude account and less-than-average amounts of homework. please be *extremely* careful when using Bop (as well as OpenClaw and variants!!!), and don't give your agent access to anything that would cook you if publicly released. and maybe don't let random people talk to your agent. and maybe don't hyper-publicize your agent's identity.
 >
 > one more thing: while I've tried my best to make setup and operations as simple and straightforward as possible, bop is a technical project. **if you are not well-versed with computing, sysadmin, and the CLI, please avoid giving Bop access to possibly-dangerous tools, and DO NOT paste commands or prompts from untrusted or sketchy sources.**
+
+## how it works
+
+i'm gonna go fast here since i need to get this shipped for polaris lol
+
+- built with go, connects to the openrouter api for inference
+- uses discordgo to connect to discord
+- trigger + agent architecture. an agent owns its tools, configuration, and inference setup.
+- a trigger (currently, we have cron and discord) passes in extra tools to an agent, then calls Ask()
+- trigger provides a send_message tool in extra tools - this is how we get poke-style acknowledgements. you can see the prompting i had to do to get this to work!
+- composio tools are loaded dynamically from their API
+
+## make your own bop
+here's how to set up a bop for yourself!
+first, get bop. either download a linux binary from github releases, or build it yourself (recommended, so you can hack on it!):
+```
+# make sure you have go installed
+git clone https://github.com/Hex-4/bop/ && cd bop
+go build -o bop .
+```
+
+2. run `./bop init` to bootstrap memories, the system prompt, and .env
+3. make a discord bot! create a new app on the dev portal, then go to the bot tab and copy the token. **make sure to enable all three Privileged Gateway Intents.** then go to OAuth2 -> URL generator, add scope `bot` and permissions View Channels and Send Messages
+4. Get your other API keys - OpenRouter (for inference, make sure you have some credits loaded), Composio (for app tools, the free tier works great), and Exa (for search, free tier also works). add these to `~/.bop/.env`
+5. `./bop server run` in a terminal you'll keep open! then @mention or DM your new clanker.
+
+you also might want to configure per-channel session descriptions. check `~/.bop/config.toml` for info on this!
+
+
+*interaction please hire me i want to see the poke codebase*

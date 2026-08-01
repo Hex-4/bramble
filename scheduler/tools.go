@@ -77,6 +77,9 @@ func newScheduleOnce(s *Scheduler) tools.Tool {
 			if err != nil {
 				return "Error parsing fire time: " + err.Error(), nil
 			}
+			if fireAt.Before(time.Now()) {
+				return "Error: fire_at is in the past. Current time is " + time.Now().Format("2006-01-02T15:04:05") + " — double-check the date.", nil
+			}
 			silent, _ := args["silent"].(bool)
 			id := s.AddOneShot(fireAt, tools.ArgString(args, "prompt"), tools.ArgString(args, "session_id"), silent)
 			return "Job created with ID: " + id, nil

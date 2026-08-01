@@ -11,6 +11,27 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
+const defaultEnv = `# bop secrets — loaded by ` + "`bop server run`" + ` at startup.
+# keep this file private. never commit it, never paste it anywhere.
+
+# your discord bot token (required — bop won't boot without this)
+# discord developer portal → your application → bot → reset token
+# https://discord.com/developers/applications
+DISCORD_TOKEN=
+
+# openrouter API key (required — this is how the agent thinks)
+# https://openrouter.ai/keys
+OPENROUTER_KEY=
+
+# composio API key (required for now — external app tools like gmail/github)
+# https://composio.dev
+COMPOSIO_KEY=
+
+# exa API key (optional — only the web_search / web_fetch tools use this)
+# https://exa.ai
+EXA_KEY=
+`
+
 const (
 	Banner = `▄     ▄▄
 █    █  ▀               ▄   ▄▄
@@ -81,7 +102,18 @@ func RunInit() {
 		thingHappened("✓", "~/.bop/workspace/agent.md created successfully", "#68A655", 3)
 	}
 
-	thingHappened("❧", "done for now.", "#68A655", 0)
+	thingHappened("→", "creating ~/.bop/.env (this is where your API keys live — fill it in!)", "#68A655", 0)
+
+	if _, err := os.Stat(filepath.Join(bopDir, ".env")); !os.IsNotExist(err) {
+		thingHappened("┄", "~/.bop/.env already exists, skipping", "#68A655", 3)
+	} else if err := os.WriteFile(filepath.Join(bopDir, ".env"), []byte(defaultEnv), 0600); err != nil {
+		thingHappened("⚠", fmt.Sprintf("failed to create ~/.bop/.env: %v", err), "#CE7527", 3)
+		return
+	} else {
+		thingHappened("✓", "~/.bop/.env created (mode 0600, only you can read it)", "#68A655", 3)
+	}
+
+	thingHappened("❧", "done! next: add your keys to ~/.bop/.env, then run: bop server run", "#68A655", 0)
 }
 
 func thingHappened(icon string, message string, color string, indent int) {

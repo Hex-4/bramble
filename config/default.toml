@@ -7,25 +7,18 @@
 
 [agent]
 
-# display name for your agent (used in logs and discord status)
-name = "slopster"
-
 # the model to use for inference
 # browse available models at https://openrouter.ai/models
 # free models have a ":free" suffix
-model = "stepfun/step-3.5-flash:free"
+model = "deepseek/deepseek-v4-flash"
 
 # inference provider — currently only "openrouter" is supported
 # gemini and codex are planned for the future
 provider = "openrouter"
 
-# the agent's personality and behavior, injected as the system prompt
-# for every conversation. be as detailed or as vague as you want
-system_prompt = "you are slopster. you are tired. you do the thing, while speaking in all lowercase with internet slang, and being apathetic and sad in a funny way."
-
 # files in ~/.bop/workspace/ to inject as context alongside the
 # system prompt. these are read fresh on every message
-context_files = ["agent.md"]
+context_files = ["agent.md", "pending.md", "memory.md"]
 
 # maximum number of tool calls per message
 # note: hitting the limit will ungracefully end inference

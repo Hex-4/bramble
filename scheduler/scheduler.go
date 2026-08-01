@@ -49,14 +49,14 @@ func generateJobID() string {
 
 func (s *Scheduler) fire(jobID string, wrappedPrompt string, sessionID string, silent bool) {
 	prompt := s.Agent.SystemPrompt()
-	niceTimeString := time.Now().Format("January 1 2006 at 15:04:05 MST")
-	prompt = prompt + " (current time: " + niceTimeString + ")"
+	niceTimeString := time.Now().Format("2006-01-02T15:04:05")
+	prompt = prompt + " (current time: " + niceTimeString + ", local time, YYYY-MM-DDTHH:MM:SS)"
 
 	history, _ := s.sessions.Load(jobID)
 	history = append(history, ai.Message{Role: "system", Content: wrappedPrompt})
 
 	messages := []ai.Message{
-		{Role: "system", Content: wrappedPrompt},
+		{Role: "system", Content: prompt},
 	}
 	messages = append(messages, history...)
 
@@ -71,8 +71,22 @@ func (s *Scheduler) fire(jobID string, wrappedPrompt string, sessionID string, s
 
 	if err != nil {
 		fmt.Printf("cron job failed: %v\n", err)
+		return
 	}
 	history = append(history, newMessages...)
+
+	if !silent {
+		if !triggers.IsLastToolCall(newMessages, "send_message") {
+			reminder := ai.Message{Role: "system", Content: "You ended your turn without calling send_message. Your last response was never delivered — the user only sees messages sent via send_message. If it contained anything the user needs, call send_message now with that content (you can reuse what you already wrote). If this was intentional, end your turn without calling any tools."}
+			history = append(history, reminder)
+			retryMessages := append([]ai.Message{{Role: "system", Content: prompt}}, history...)
+			retriedNewMessages, err := s.Agent.Ask(retryMessages, extraTools)
+			if err == nil {
+				history = append(history, retriedNewMessages...)
+			}
+		}
+	}
+
 	s.sessions.Save(jobID, history)
 }
 
