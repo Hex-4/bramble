@@ -18,11 +18,6 @@ type Agent struct {
 	Config      *config.Config
 	Tools       map[string]tools.Tool
 }
-type Session struct {
-	ID          string
-	History     []Message
-	Description string
-}
 
 type ChatRequest struct {
 	Model    string           `json:"model"`

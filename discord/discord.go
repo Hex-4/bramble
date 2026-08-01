@@ -1,7 +1,7 @@
 package discord
 
 import (
-	"strings"
+	"fmt"
 	"time"
 
 	"github.com/Hex-4/bop/ai"
@@ -33,14 +33,14 @@ func NewDiscordBot(token string, agent *ai.Agent) (*DiscordBotTrigger, error) {
 		return nil, err
 	}
 
-	sessions := triggers.SessionStore{}
+	sessions := triggers.NewSessionStore()
 
 	sessionDescriptions := agent.Config.Agent.SessionDescriptions
 
 	d := &DiscordBotTrigger{
 		dg:                  dg,
 		agent:               agent,
-		sessions:            &sessions,
+		sessions:            sessions,
 		sessionDescriptions: sessionDescriptions,
 	}
 	dg.AddHandler(d.handleMessage)
@@ -54,11 +54,6 @@ func (d *DiscordBotTrigger) Open() error {
 
 func (d *DiscordBotTrigger) Close() error {
 	return d.dg.Close()
-}
-
-func (d *DiscordBotTrigger) Send(sessionID string, message string) {
-	channelID := strings.TrimPrefix(sessionID, "discord:")
-	d.dg.ChannelMessageSend(channelID, message)
 }
 
 func (d *DiscordBotTrigger) handleMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
@@ -83,7 +78,7 @@ func (d *DiscordBotTrigger) handleMessage(s *discordgo.Session, m *discordgo.Mes
 	messageText := m.Message.Content
 	messageText = "Discord message from user id " + m.Author.ID + ": " + messageText
 	done := make(chan bool)
-
+	defer close(done)
 	go func() {
 		for {
 			select {
@@ -102,6 +97,8 @@ func (d *DiscordBotTrigger) handleMessage(s *discordgo.Session, m *discordgo.Mes
 
 	niceTimeString := time.Now().Format("January 1 2006 at 15:04:05 MST")
 	prompt += "\nCurrent time: " + niceTimeString
+	prompt += "\nThe user cannot see your regular responses. To communicate with them, you must call send_message."
+	prompt += "\nAfter calling send_message, end your turn. The user will reply in a new message — never simulate, predict, or answer on their behalf."
 
 	sessionDescription, ok := d.sessionDescriptions["discord:"+m.ChannelID]
 	if ok {
@@ -120,15 +117,28 @@ func (d *DiscordBotTrigger) handleMessage(s *discordgo.Session, m *discordgo.Mes
 	messages = append(messages, userMessage)
 
 	aiResponse, err := d.agent.Ask(messages, d.ExtraTools(m.ChannelID))
-
-	sessionHistory = append(sessionHistory, userMessage)
-	sessionHistory = append(sessionHistory, aiResponse...)
-	d.sessions.Save(m.ChannelID, sessionHistory)
-
 	if err != nil {
 		s.ChannelMessageSend(m.ChannelID, "something broke. slopster is sorry. here's the error: "+err.Error())
 		return
 	}
+
+	sessionHistory = append(sessionHistory, userMessage)
+	sessionHistory = append(sessionHistory, aiResponse...)
+
+	if !triggers.IsLastToolCall(aiResponse, "send_message") {
+		reminder := ai.Message{Role: "system", Content: "You ended your turn without calling send_message. Your last response was never delivered — the user only sees messages sent via send_message. If it contained anything the user needs, call send_message now with that content (you can reuse what you already wrote). If this was intentional, end your turn without calling any tools."}
+		sessionHistory = append(sessionHistory, reminder)
+		retryMessages := append([]ai.Message{promptMessage}, sessionHistory...)
+		retry, err := d.agent.Ask(retryMessages, d.ExtraTools(m.ChannelID))
+		if err == nil {
+			sessionHistory = append(sessionHistory, retry...)
+		}
+	}
+
+	fmt.Println(sessionHistory)
+
+	d.sessions.Save(m.ChannelID, sessionHistory)
+
 	done <- true
 }
 

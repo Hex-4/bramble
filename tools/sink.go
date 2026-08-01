@@ -17,7 +17,7 @@ func NewSendMessage(send func(string) error) Tool {
 			if err != nil {
 				return "Error: " + err.Error(), nil
 			}
-			return "Message sent successfully", nil
+			return "Message delivered. The user will reply in a new message — end your turn unless you have more to send right now.", nil
 		},
 	}
 }

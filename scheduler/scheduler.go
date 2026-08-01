@@ -31,12 +31,12 @@ type Job struct {
 }
 
 func NewScheduler(agent *ai.Agent) *Scheduler {
-	sessions := triggers.SessionStore{}
+	sessions := triggers.NewSessionStore()
 
 	return &Scheduler{
 		Cron:     cron.New(),
 		Jobs:     make(map[string]Job),
-		sessions: &sessions,
+		sessions: sessions,
 		Agent:    agent,
 	}
 }
