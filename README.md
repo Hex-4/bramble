@@ -2,6 +2,9 @@
 *the hackable AI agent framework for people who'd rather make human slop*
 lives in your discord, with cron, terminal, and file tools, plus composio support for connecting to like 500 apps. plus the default personality is pretty funny lol
 
+https://github.com/user-attachments/assets/af29a9f7-b0e5-42ab-aafd-918351d2fb31
+
+
 ![image](https://cdn.hackclub.com/019fbb3b-c6bf-7ecc-a629-66a83f675055/image.png)
 ![image](https://cdn.hackclub.com/019fbb40-de8a-7150-8232-b0695e645d2a/image.png)
 
